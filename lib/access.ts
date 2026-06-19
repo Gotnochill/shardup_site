@@ -51,6 +51,11 @@ export async function syncUserAccess(userId: string, email?: string | null) {
 export async function ensureRegistrationRecords(userId: string, email?: string | null) {
   const access = await syncUserAccess(userId, email);
 
+  // User gaya but session zinda → access null aata hai. Ruk jao, warna FK error.
+  if (!access) {
+    return;
+  }
+
   await prisma.profile.upsert({
     where: { userId },
     update: {},
