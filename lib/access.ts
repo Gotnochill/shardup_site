@@ -51,6 +51,13 @@ export async function syncUserAccess(userId: string, email?: string | null) {
 export async function ensureRegistrationRecords(userId: string, email?: string | null) {
   const access = await syncUserAccess(userId, email);
 
+  // syncUserAccess returns null when the user row no longer exists (e.g. a
+  // session that outlived its user). Bail out instead of creating child rows
+  // for a missing user, which would violate the foreign key.
+  if (!access) {
+    return;
+  }
+
   await prisma.profile.upsert({
     where: { userId },
     update: {},
@@ -61,9 +68,19 @@ export async function ensureRegistrationRecords(userId: string, email?: string |
     where: { userId },
   });
 
-  if (!application && access?.role !== Role.ADMIN) {
+  if (!application && access.role !== Role.ADMIN) {
+    // Open a blank draft for the current active cohort (if there is one).
+    const activeCohort = await prisma.cohort.findFirst({
+      where: { isActive: true },
+      select: { id: true },
+    });
+
     await prisma.application.create({
-      data: { userId, status: ApplicationStatus.DRAFT },
+      data: {
+        userId,
+        status: ApplicationStatus.DRAFT,
+        cohortId: activeCohort?.id ?? null,
+      },
     });
   }
 }

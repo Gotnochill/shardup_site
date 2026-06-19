@@ -3,19 +3,25 @@ import {
   auth,
   isGoogleOAuthConfigured,
   isLocalDevAuthEnabled,
-  localDevAuthRole,
   signIn,
 } from "../../../auth";
+import { prisma } from "../../../lib/prisma";
 
 export default async function JoinPage() {
   const session = await auth();
 
-  if (session?.user?.status === "ACTIVE") {
-    redirect("/dashboard");
-  }
+  // Only redirect a signed-in user if their account still exists. A session can
+  // outlive its user (e.g. the user was deleted), and redirecting it to /apply
+  // would bounce between /join and /apply forever.
+  if (session?.user?.id) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { status: true },
+    });
 
-  if (session?.user) {
-    redirect("/apply");
+    if (user) {
+      redirect(user.status === "ACTIVE" ? "/dashboard" : "/apply");
+    }
   }
 
   return (
@@ -47,9 +53,17 @@ export default async function JoinPage() {
           ) : null}
 
           {isLocalDevAuthEnabled ? (
-            <a className={isGoogleOAuthConfigured ? "secondary-button" : "button"} href="/dev-login">
-              Continue as local {localDevAuthRole === "admin" ? "admin" : "applicant"}
-            </a>
+            <>
+              <a
+                className={isGoogleOAuthConfigured ? "secondary-button" : "button"}
+                href="/dev-login?role=member"
+              >
+                Continue as applicant (dev)
+              </a>
+              <a className="secondary-button" href="/dev-login?role=admin">
+                Continue as admin (dev)
+              </a>
+            </>
           ) : null}
         </div>
       </section>
