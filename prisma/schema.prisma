@@ -40,6 +40,8 @@ model User {
   sessions      Session[]
   profile       Profile?
   application   Application?
+  rsvps         EventRsvp[]
+  createdEvents Event[]      @relation("EventCreator")
 
   reviewedApplications Application[] @relation("ApplicationReviewer")
 }
@@ -116,4 +118,37 @@ model Application {
   reviewer User? @relation("ApplicationReviewer", fields: [reviewedBy], references: [id])
 
   @@index([status])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String
+  startsAt    DateTime
+  endsAt      DateTime?
+  published   Boolean  @default(true)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator User?       @relation("EventCreator", fields: [createdById], references: [id])
+  rsvps   EventRsvp[]
+
+  @@index([published, startsAt])
+  @@index([createdById])
+}
+
+model EventRsvp {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId])
 }
