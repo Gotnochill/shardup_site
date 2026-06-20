@@ -1,9 +1,8 @@
 import { Role, UserStatus } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { auth } from "../../../../auth";
-import { parseQuestions } from "../../../../lib/cohorts";
 import { prisma } from "../../../../lib/prisma";
-import { editQuestion, setActiveCohort } from "./actions";
+import { setActiveCohort } from "./actions";
 
 export default async function CohortAdminPage({
   searchParams,
@@ -18,117 +17,62 @@ export default async function CohortAdminPage({
     redirect("/dashboard");
   }
 
-  const cohort = await prisma.cohort.findFirst({ where: { isActive: true } });
-  const questions = cohort ? parseQuestions(cohort.questions) : [];
+  const cohorts = await prisma.cohort.findMany({
+    orderBy: { year: "desc" },
+    include: { _count: { select: { applications: true } } },
+  });
+
+  const hasActive = cohorts.some((cohort) => cohort.isActive);
 
   return (
     <main className="app-shell">
       <section className="app-card wide-card">
         <p className="section-label">Admin</p>
-        <h1>Cohort</h1>
-        {cohort ? (
-          <p>
-            Active cohort: <strong>Cohort {cohort.year}</strong>. Edit the questions
-            applicants answer below.
-          </p>
-        ) : (
-          <p>No active cohort yet. Set the year below to open applications.</p>
-        )}
-
-        {searchParams?.error === "invalid-year" ? (
-          <p className="form-message error">Please enter a valid year (2000–2100).</p>
-        ) : null}
+        <h1>Cohorts</h1>
+        <p>Open a cohort each year, edit its questions, and review past cohorts.</p>
 
         <div className="portal-section">
-          <h2>{cohort ? "Change active year" : "Set active year"}</h2>
+          <h2>Open a cohort</h2>
+          {searchParams?.error === "invalid-year" ? (
+            <p className="form-message error">Please enter a valid year (2000–2100).</p>
+          ) : null}
           <form action={setActiveCohort} className="stacked-form">
             <label>
               Year
-              <input
-                name="year"
-                type="number"
-                required
-                min={2000}
-                max={2100}
-                defaultValue={cohort?.year}
-                placeholder="e.g. 2027"
-              />
+              <input name="year" type="number" required min={2000} max={2100} placeholder="e.g. 2027" />
             </label>
             <div className="form-row">
               <button className="button" type="submit">
-                {cohort ? "Set active cohort" : "Open cohort"}
+                {hasActive ? "Open / switch active cohort" : "Open cohort"}
               </button>
             </div>
           </form>
         </div>
 
-        {cohort ? (
-          <div className="portal-section">
-            <h2>Application questions</h2>
-            {questions.length === 0 ? (
-              <p className="muted-line">No questions yet. Add the first one below.</p>
-            ) : (
-              <div className="question-list">
-                {questions.map((question, index) => (
-                  <form action={editQuestion} className="question-row" key={question.id}>
-                    <input type="hidden" name="questionId" value={question.id} />
-                    <input name="label" defaultValue={question.label} aria-label="Question" />
-                    <label className="inline-check">
-                      <input
-                        type="checkbox"
-                        name="required"
-                        defaultChecked={question.required}
-                      />
-                      Required
-                    </label>
-                    <div className="question-actions">
-                      <button
-                        className="icon-button"
-                        name="action"
-                        value="up"
-                        type="submit"
-                        disabled={index === 0}
-                        aria-label="Move up"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        className="icon-button"
-                        name="action"
-                        value="down"
-                        type="submit"
-                        disabled={index === questions.length - 1}
-                        aria-label="Move down"
-                      >
-                        ↓
-                      </button>
-                      <button className="icon-button" name="action" value="update" type="submit">
-                        Save
-                      </button>
-                      <button className="icon-button danger" name="action" value="remove" type="submit" aria-label="Remove">
-                        ✕
-                      </button>
-                    </div>
-                  </form>
-                ))}
-              </div>
-            )}
-
-            <form action={editQuestion} className="question-row add-question">
-              <input type="hidden" name="action" value="add" />
-              <input name="label" placeholder="Add a new question" aria-label="New question" />
-              <label className="inline-check">
-                <input type="checkbox" name="required" />
-                Required
-              </label>
-              <div className="question-actions">
-                <button className="button" type="submit">
-                  Add
-                </button>
-              </div>
-            </form>
-          </div>
-        ) : null}
+        <div className="portal-section">
+          <h2>All cohorts</h2>
+          {cohorts.length === 0 ? (
+            <p className="muted-line">No cohorts yet. Open one above.</p>
+          ) : (
+            <div className="application-list">
+              {cohorts.map((cohort) => (
+                <article className="application-row" key={cohort.id}>
+                  <div>
+                    <h2>Cohort {cohort.year}</h2>
+                    <p className="muted-line">
+                      {cohort.isActive ? "Active — recruiting" : "Ended"} ·{" "}
+                      {cohort._count.applications} response
+                      {cohort._count.applications === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                  <a className="secondary-button" href={`/admin/cohort/${cohort.id}`}>
+                    {cohort.isActive ? "Manage" : "View"}
+                  </a>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
     </main>
   );

@@ -39,6 +39,9 @@ export default async function ApplyPage({
   // the cohort the application was actually submitted to.
   const activeCohort = await prisma.cohort.findFirst({ where: { isActive: true } });
   const cohort = isSubmitted ? application?.cohort ?? null : activeCohort;
+  // Most recent cohort's year, for the "recruitment ended" message.
+  const latestCohort =
+    activeCohort ?? (await prisma.cohort.findFirst({ orderBy: { year: "desc" } }));
   const questions = cohort ? parseQuestions(cohort.questions) : [];
   const answers = parseAnswers(application?.answers);
 
@@ -53,7 +56,9 @@ export default async function ApplyPage({
             ? "Application not approved"
             : isSubmitted
               ? "Application under review"
-              : "Complete your application"}
+              : !cohort
+                ? "Recruitment closed"
+                : "Complete your application"}
         </h1>
 
         {searchParams?.error ? (
@@ -89,7 +94,11 @@ export default async function ApplyPage({
             </div>
           </>
         ) : !cohort ? (
-          <p>Applications aren&apos;t open right now. Check back soon.</p>
+          <p>
+            {latestCohort
+              ? `Recruitment for Cohort ${latestCohort.year} has ended. Please try again next year.`
+              : "Applications aren't open right now. Check back soon."}
+          </p>
         ) : (
           <>
             <p>

@@ -22,8 +22,7 @@ async function requireAdmin() {
 
 const yearSchema = z.coerce.number().int().min(2000).max(2100);
 
-// Create the cohort for a year (or reactivate an existing one) and make it the
-// single active cohort.
+// Open a cohort for a year (or reactivate one) and make it the single active cohort.
 export async function setActiveCohort(formData: FormData) {
   await requireAdmin();
 
@@ -46,19 +45,37 @@ export async function setActiveCohort(formData: FormData) {
   redirect("/admin/cohort");
 }
 
+// End recruitment for a cohort. No active cohort remains until a new one is opened.
+export async function endCohort(formData: FormData) {
+  await requireAdmin();
+
+  const cohortId = String(formData.get("cohortId") ?? "");
+  if (!cohortId) {
+    return;
+  }
+
+  await prisma.cohort.update({ where: { id: cohortId }, data: { isActive: false } });
+
+  revalidatePath("/admin/cohort");
+  revalidatePath(`/admin/cohort/${cohortId}`);
+  revalidatePath("/apply");
+}
+
 const editSchema = z.object({
+  cohortId: z.string().min(1),
   action: z.enum(["add", "update", "remove", "up", "down"]),
   questionId: z.string().optional(),
   label: z.string().trim().max(300).optional(),
   required: z.string().optional(),
 });
 
-// Add / reword / remove / reorder the active cohort's questions. Question ids
-// are stable so existing answers stay attached.
+// Add / reword / remove / reorder a cohort's questions. Question ids stay stable
+// so existing answers remain attached.
 export async function editQuestion(formData: FormData) {
   await requireAdmin();
 
   const parsed = editSchema.safeParse({
+    cohortId: formData.get("cohortId"),
     action: formData.get("action"),
     questionId: formData.get("questionId") ?? undefined,
     label: formData.get("label") ?? undefined,
@@ -68,7 +85,7 @@ export async function editQuestion(formData: FormData) {
     redirect("/admin/cohort");
   }
 
-  const cohort = await prisma.cohort.findFirst({ where: { isActive: true } });
+  const cohort = await prisma.cohort.findUnique({ where: { id: parsed.data.cohortId } });
   if (!cohort) {
     redirect("/admin/cohort");
   }
@@ -106,6 +123,6 @@ export async function editQuestion(formData: FormData) {
     data: { questions: next as unknown as Prisma.InputJsonValue },
   });
 
-  revalidatePath("/admin/cohort");
+  revalidatePath(`/admin/cohort/${cohort.id}`);
   revalidatePath("/apply");
 }
