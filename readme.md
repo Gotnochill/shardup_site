@@ -146,10 +146,13 @@ Useful commands:
 
 - `npm run prisma:generate`
 - `DATABASE_URL="postgresql://postgres:postgres@localhost:5432/shardup?schema=public" npm run prisma:migrate`
+- `npm run prisma:seed`
 - `npm run dev`
 - `npm run build`
 
 Registration is application-first. Google sign-in creates the user identity, but member access remains gated until the application is approved by an admin.
+
+Events are published manually for now. Seed sample events with `npm run prisma:seed`, or manage rows directly in Prisma Studio. RSVP is available only to active members; signed-out users can view events but must sign in before RSVPing.
 
 ## Deployment to Vercel
 
@@ -183,6 +186,12 @@ DATABASE_URL="postgresql://..." npm run prisma:migrate
 ```
 
 Or set up a Vercel Deploy Hook / CI step that runs `prisma migrate deploy` after production deploys.
+
+Seed sample events against production only when needed:
+
+```bash
+DATABASE_URL="postgresql://..." npm run prisma:seed
+```
 
 ### Important notes
 

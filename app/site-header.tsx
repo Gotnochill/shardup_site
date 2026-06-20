@@ -11,6 +11,7 @@ export default function SiteHeader({
       <nav className="nav-links">
         <a href="/#about">About</a>
         <a href="/#community">Community</a>
+        <a href="/events">Events</a>
         {children ?? <a href="/join">Join</a>}
       </nav>
     </header>
