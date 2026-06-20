@@ -20,6 +20,8 @@ export async function GET() {
 
   let database = false;
   let databaseError: string | null = null;
+  let schema = false;
+  let schemaError: string | null = null;
 
   if (checks.databaseUrl) {
     try {
@@ -28,9 +30,23 @@ export async function GET() {
     } catch (error) {
       databaseError = error instanceof Error ? error.message : "Unknown database error";
     }
+
+    if (database) {
+      try {
+        await Promise.all([
+          prisma.user.count(),
+          prisma.account.count(),
+          prisma.profile.count(),
+          prisma.application.count(),
+        ]);
+        schema = true;
+      } catch (error) {
+        schemaError = error instanceof Error ? error.message : "Unknown schema error";
+      }
+    }
   }
 
-  const ok = Object.values(checks).every(Boolean) && database;
+  const ok = Object.values(checks).every(Boolean) && database && schema;
 
   return NextResponse.json(
     {
@@ -38,6 +54,8 @@ export async function GET() {
       checks,
       database,
       databaseError,
+      schema,
+      schemaError,
     },
     { status: ok ? 200 : 500 },
   );
