@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
 import { redirect } from "next/navigation";
-import {
-  isLocalDevAuthEnabled,
-  localDevProviderId,
-  signIn,
-  type LocalDevRole,
-} from "../../auth";
+import { isLocalDevAuthEnabled, localDevProviderId, signIn, type LocalDevRole } from "../../auth";
 
 export const dynamic = "force-dynamic";
 

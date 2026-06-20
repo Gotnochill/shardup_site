@@ -82,9 +82,7 @@ const providers = [
         }),
       ]
     : []),
-  ...(isLocalDevAuthEnabled
-    ? [makeLocalDevProvider("member"), makeLocalDevProvider("admin")]
-    : []),
+  ...(isLocalDevAuthEnabled ? [makeLocalDevProvider("member"), makeLocalDevProvider("admin")] : []),
 ];
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -92,8 +90,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   debug: process.env.AUTH_DEBUG === "true",
   trustHost: process.env.AUTH_TRUST_HOST === "true" || process.env.VERCEL === "1",
   secret:
-    process.env.AUTH_SECRET ??
-    (isDevelopment ? "shardup-development-only-auth-secret" : undefined),
+    process.env.AUTH_SECRET ?? (isDevelopment ? "shardup-development-only-auth-secret" : undefined),
   session: { strategy: "jwt" },
   pages: {
     signIn: "/join",
@@ -111,10 +108,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       return Boolean(
         profile &&
-          "email" in profile &&
-          typeof profile.email === "string" &&
-          "email_verified" in profile &&
-          profile.email_verified === true,
+        "email" in profile &&
+        typeof profile.email === "string" &&
+        "email_verified" in profile &&
+        profile.email_verified === true,
       );
     },
     async jwt({ token, user }) {
@@ -145,9 +142,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id;
         session.user.role = token.role === "ADMIN" ? "ADMIN" : "MEMBER";
         session.user.status =
-          token.status === "ACTIVE" ||
-          token.status === "REJECTED" ||
-          token.status === "SUSPENDED"
+          token.status === "ACTIVE" || token.status === "REJECTED" || token.status === "SUSPENDED"
             ? token.status
             : "PENDING";
       }

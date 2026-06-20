@@ -7,7 +7,11 @@ import { reviewApplication } from "./actions";
 export default async function ApplicationsAdminPage() {
   const session = await auth();
 
-  if (!session?.user || session.user.role !== Role.ADMIN || session.user.status !== UserStatus.ACTIVE) {
+  if (
+    !session?.user ||
+    session.user.role !== Role.ADMIN ||
+    session.user.status !== UserStatus.ACTIVE
+  ) {
     redirect("/dashboard");
   }
 

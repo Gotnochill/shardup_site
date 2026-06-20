@@ -1,10 +1,5 @@
 import { redirect } from "next/navigation";
-import {
-  auth,
-  isGoogleOAuthConfigured,
-  isLocalDevAuthEnabled,
-  signIn,
-} from "../../../auth";
+import { auth, isGoogleOAuthConfigured, isLocalDevAuthEnabled, signIn } from "../../../auth";
 import { prisma } from "../../../lib/prisma";
 
 export default async function JoinPage() {
@@ -28,8 +23,8 @@ export default async function JoinPage() {
         <p className="section-label">Join ShardUp</p>
         <h1>Start with your account.</h1>
         <p>
-          Signing in creates your ShardUp identity. Full member access is granted
-          after your application is reviewed.
+          Signing in creates your ShardUp identity. Full member access is granted after your
+          application is reviewed.
         </p>
         <div className="auth-actions-list">
           {isGoogleOAuthConfigured ? (

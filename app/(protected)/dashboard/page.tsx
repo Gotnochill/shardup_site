@@ -19,8 +19,8 @@ export default async function DashboardPage() {
         <p className="section-label">Member dashboard</p>
         <h1>Welcome, {session.user.name ?? "builder"}.</h1>
         <p>
-          Your account is active. This dashboard is the starting point for member
-          profiles, resources, achievements, and future leaderboards.
+          Your account is active. This dashboard is the starting point for member profiles,
+          resources, achievements, and future leaderboards.
         </p>
         {session.user.role === Role.ADMIN ? (
           <a className="text-link" href="/admin/applications">

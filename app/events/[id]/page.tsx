@@ -2,29 +2,11 @@
 
 import { notFound } from "next/navigation";
 import { auth } from "../../../auth";
+import { formatEventDetailDate } from "../../../lib/events";
 import { prisma } from "../../../lib/prisma";
 import RsvpControl from "../rsvp-control";
 
 export const dynamic = "force-dynamic";
-
-function formatEventDate(startsAt: Date, endsAt: Date | null) {
-  const starts = new Intl.DateTimeFormat("en", {
-    dateStyle: "full",
-    timeStyle: "short",
-    timeZone: "UTC",
-  }).format(startsAt);
-
-  if (!endsAt) {
-    return `${starts} UTC`;
-  }
-
-  const ends = new Intl.DateTimeFormat("en", {
-    timeStyle: "short",
-    timeZone: "UTC",
-  }).format(endsAt);
-
-  return `${starts} - ${ends} UTC`;
-}
 
 export default async function EventDetailPage({
   params,
@@ -70,7 +52,7 @@ export default async function EventDetailPage({
         <div className="event-detail-meta">
           <p>
             <span>When</span>
-            {formatEventDate(event.startsAt, event.endsAt)}
+            {formatEventDetailDate(event.startsAt, event.endsAt)}
           </p>
           <p>
             <span>Where</span>
@@ -83,11 +65,7 @@ export default async function EventDetailPage({
         </div>
         <p>{event.description}</p>
         <div className="event-detail-actions">
-          <RsvpControl
-            eventId={event.id}
-            userStatus={session?.user?.status}
-            isGoing={isGoing}
-          />
+          <RsvpControl eventId={event.id} userStatus={session?.user?.status} isGoing={isGoing} />
           <a className="text-link" href="/events">
             Back to events
           </a>

@@ -11,8 +11,7 @@ export async function GET() {
   const checks = {
     authSecret: isConfigured(process.env.AUTH_SECRET),
     authUrl: isConfigured(process.env.AUTH_URL),
-    authTrustHost:
-      process.env.AUTH_TRUST_HOST === "true" || process.env.VERCEL === "1",
+    authTrustHost: process.env.AUTH_TRUST_HOST === "true" || process.env.VERCEL === "1",
     databaseUrl: isConfigured(process.env.DATABASE_URL),
     googleClientId: isConfigured(process.env.AUTH_GOOGLE_ID),
     googleClientSecret: isConfigured(process.env.AUTH_GOOGLE_SECRET),

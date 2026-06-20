@@ -60,18 +60,18 @@ export default async function ApplyPage({
         ) : null}
         {isRejected ? (
           <p>
-            Your latest application was not approved. Reach out to the ShardUp
-            team if you think this needs another look.
+            Your latest application was not approved. Reach out to the ShardUp team if you think
+            this needs another look.
           </p>
         ) : isSubmitted ? (
           <p>
-            Your application has been submitted and is currently under review.
-            We will update your access once it has been considered.
+            Your application has been submitted and is currently under review. We will update your
+            access once it has been considered.
           </p>
         ) : (
           <p>
-            Tell us a little about yourself. Approved members will get access to
-            the community dashboard and future ShardUp features.
+            Tell us a little about yourself. Approved members will get access to the community
+            dashboard and future ShardUp features.
           </p>
         )}
         {isSubmitted ? (

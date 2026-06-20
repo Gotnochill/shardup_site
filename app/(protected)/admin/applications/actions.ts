@@ -9,7 +9,11 @@ import { prisma } from "../../../../lib/prisma";
 export async function reviewApplication(formData: FormData) {
   const session = await auth();
 
-  if (!session?.user || session.user.role !== Role.ADMIN || session.user.status !== UserStatus.ACTIVE) {
+  if (
+    !session?.user ||
+    session.user.role !== Role.ADMIN ||
+    session.user.status !== UserStatus.ACTIVE
+  ) {
     redirect("/dashboard");
   }
 

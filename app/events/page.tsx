@@ -1,29 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { auth } from "../../auth";
+import { formatEventListDate } from "../../lib/events";
 import { prisma } from "../../lib/prisma";
 import RsvpControl from "./rsvp-control";
 
 export const dynamic = "force-dynamic";
-
-function formatEventDate(startsAt: Date, endsAt: Date | null) {
-  const starts = new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "UTC",
-  }).format(startsAt);
-
-  if (!endsAt) {
-    return starts;
-  }
-
-  const ends = new Intl.DateTimeFormat("en", {
-    timeStyle: "short",
-    timeZone: "UTC",
-  }).format(endsAt);
-
-  return `${starts} - ${ends} UTC`;
-}
 
 export default async function EventsPage() {
   const session = await auth();
@@ -56,8 +38,8 @@ export default async function EventsPage() {
         <p className="section-label">Events</p>
         <h1>Upcoming ShardUp sessions.</h1>
         <p>
-          Join community sessions, reading jams, and builder circles. RSVP is open
-          to active ShardUp members.
+          Join community sessions, reading jams, and builder circles. RSVP is open to active ShardUp
+          members.
         </p>
 
         <div className="event-list">
@@ -80,7 +62,7 @@ export default async function EventsPage() {
                       <a href={`/events/${event.id}`}>{event.title}</a>
                     </h2>
                     <div className="event-summary-meta">
-                      <span>{formatEventDate(event.startsAt, event.endsAt)}</span>
+                      <span>{formatEventListDate(event.startsAt, event.endsAt)}</span>
                       <span>{event.location}</span>
                       <span>{event._count.rsvps} going</span>
                     </div>

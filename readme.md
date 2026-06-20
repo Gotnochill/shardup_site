@@ -176,6 +176,26 @@ For local development, Google credentials are optional. Set `LOCAL_DEV_AUTH_ENAB
 
 Events are published manually for now. Seed sample events with `npm run prisma:seed`, or manage rows directly in Prisma Studio. Add an optional `imageUrl` to show an event image on the list and detail pages. RSVP is available only to active members; signed-out users can view events but must sign in before RSVPing.
 
+## Testing
+
+Regression tests guard the design language, page features, and code health. If these pass, your change is safe to merge. The same checks run in CI on every pull request (`.github/workflows/ci.yml`).
+
+Run the full local gate:
+
+```bash
+npm run format:check   # Prettier formatting
+npm run lint           # ESLint / Next.js rules
+npm run typecheck      # TypeScript (tsc --noEmit)
+npm run test:unit      # Vitest unit + component + design-token guards
+npm run build          # production build
+```
+
+- `npm test` / `npm run test:unit` run the Vitest suite in `tests/unit/` (pure logic in `lib/`, the `RsvpControl` / `SiteHeader` / `AccountBar` components, and a design-language guard over `app/globals.css`).
+- `npm run test:watch` re-runs unit tests on change.
+- `npm run format` auto-fixes formatting.
+
+End-to-end, visual-regression, and Lighthouse performance suites are added in follow-up PRs.
+
 ## Deployment to Vercel
 
 This is a Next.js app that deploys directly to Vercel.
