@@ -8,7 +8,7 @@ async function main() {
       title: "Introduction to Tensor Processing Units (TPUs)",
       description:
         "Deepak Singh, SWE 3 at Google and previously SDE 2 at Uber and Microsoft plus SDE Intern at Amazon, will introduce Tensor Processing Units, why they matter for modern machine learning workloads, how they differ from GPUs, and when builders should consider using them for training or inference.",
-      imageUrl: "https://fbxzb7sb0uusum4k.public.blob.vercel-storage.com/event1.png",
+      imageUrl: "https://fbxzb7sb0uusum4k.public.blob.vercel-storage.com/event1",
       location: "Online",
       startsAt: new Date("2026-06-22T17:30:00.000Z"),
       endsAt: new Date("2026-06-22T18:30:00.000Z"),
