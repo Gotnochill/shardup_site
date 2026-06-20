@@ -165,7 +165,6 @@ For local development, Google credentials are optional. Set `LOCAL_DEV_AUTH_ENAB
 - **Continue as applicant (dev)** — signs in as `applicant@shardup.local` to test the application flow. This is a throwaway test account: it is reset to `PENDING` with a fresh blank application on every login, so you can re-run the flow repeatedly.
 - **Continue as admin (dev)** — signs in as `admin@shardup.local` to test application review. Make sure `admin@shardup.local` is in `ADMIN_EMAILS`.
 
-
 ### Useful commands
 
 - `npm run prisma:generate`
@@ -176,6 +175,7 @@ For local development, Google credentials are optional. Set `LOCAL_DEV_AUTH_ENAB
 - `npm run build`
 
 Events are published manually for now. Seed sample events with `npm run prisma:seed`, or manage rows directly in Prisma Studio. Add an optional `imageUrl` to show an event image on the list and detail pages. RSVP is available only to active members; signed-out users can view events but must sign in before RSVPing.
+
 ## Deployment to Vercel
 
 This is a Next.js app that deploys directly to Vercel.
