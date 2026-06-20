@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 import { notFound } from "next/navigation";
 import { auth } from "../../../auth";
 import { prisma } from "../../../lib/prisma";
@@ -41,6 +43,7 @@ export default async function EventDetailPage({
       id: true,
       title: true,
       description: true,
+      imageUrl: true,
       location: true,
       startsAt: true,
       endsAt: true,
@@ -63,6 +66,7 @@ export default async function EventDetailPage({
       <section className="app-card">
         <p className="section-label">Event details</p>
         <h1>{event.title}</h1>
+        {event.imageUrl ? <img className="event-hero-image" src={event.imageUrl} alt="" /> : null}
         <div className="event-detail-meta">
           <p>{formatEventDate(event.startsAt, event.endsAt)}</p>
           <p>{event.location}</p>

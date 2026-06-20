@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 import { auth } from "../../auth";
 import { prisma } from "../../lib/prisma";
 import RsvpControl from "./rsvp-control";
@@ -36,6 +38,7 @@ export default async function EventsPage() {
       id: true,
       title: true,
       description: true,
+      imageUrl: true,
       location: true,
       startsAt: true,
       endsAt: true,
@@ -63,7 +66,15 @@ export default async function EventsPage() {
               const isGoing = Boolean(event.rsvps && event.rsvps.length > 0);
 
               return (
-                <article className="event-card" key={event.id}>
+                <article
+                  className={event.imageUrl ? "event-card has-event-image" : "event-card"}
+                  key={event.id}
+                >
+                  {event.imageUrl ? (
+                    <a className="event-image-link" href={`/events/${event.id}`}>
+                      <img className="event-image" src={event.imageUrl} alt="" />
+                    </a>
+                  ) : null}
                   <div>
                     <p className="event-meta">{formatEventDate(event.startsAt, event.endsAt)}</p>
                     <h2>

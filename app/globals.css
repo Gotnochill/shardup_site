@@ -404,6 +404,33 @@ a {
   background: #fffef8;
 }
 
+.event-card.has-event-image {
+  grid-template-columns: minmax(150px, 220px) 1fr auto;
+}
+
+.event-image-link {
+  display: block;
+}
+
+.event-image,
+.event-hero-image {
+  width: 100%;
+  border: 1px solid var(--line);
+  object-fit: cover;
+}
+
+.event-image {
+  aspect-ratio: 4 / 3;
+  height: 100%;
+  min-height: 150px;
+}
+
+.event-hero-image {
+  aspect-ratio: 16 / 9;
+  max-height: 360px;
+  margin-top: 28px;
+}
+
 .event-card h2 {
   margin: 6px 0 10px;
   font-size: clamp(1.55rem, 3vw, 2.25rem);

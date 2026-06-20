@@ -152,7 +152,7 @@ Useful commands:
 
 Registration is application-first. Google sign-in creates the user identity, but member access remains gated until the application is approved by an admin.
 
-Events are published manually for now. Seed sample events with `npm run prisma:seed`, or manage rows directly in Prisma Studio. RSVP is available only to active members; signed-out users can view events but must sign in before RSVPing.
+Events are published manually for now. Seed sample events with `npm run prisma:seed`, or manage rows directly in Prisma Studio. Add an optional `imageUrl` to show an event image on the list and detail pages. RSVP is available only to active members; signed-out users can view events but must sign in before RSVPing.
 
 ## Deployment to Vercel
 
