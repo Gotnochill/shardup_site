@@ -194,7 +194,21 @@ npm run build          # production build
 - `npm run test:watch` re-runs unit tests on change.
 - `npm run format` auto-fixes formatting.
 
-End-to-end, visual-regression, and Lighthouse performance suites are added in follow-up PRs.
+### End-to-end tests
+
+Playwright drives the real app in `tests/e2e/` (auth-aware navigation, events + RSVP gating, route redirects, the health endpoint). It uses the development-only sign-in, so it requires a Postgres database and runs the dev server automatically.
+
+```bash
+# One-time: install the browser
+npx playwright install chromium
+
+# Requires a running Postgres. Point DATABASE_URL at a test database.
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/shardup?schema=public" npm run test:e2e
+```
+
+`global-setup` applies migrations and seeds a deterministic, always-future event before the suite runs. `npm run test:e2e:ui` opens the Playwright UI runner.
+
+End-to-end runs in CI against a Postgres service container. Visual-regression and Lighthouse performance suites are added in follow-up PRs.
 
 ## Deployment to Vercel
 
