@@ -1,4 +1,5 @@
 import { SubmissionVerdict } from "@prisma/client";
+import { auth } from "../../auth";
 import { prisma } from "../../lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +13,9 @@ const difficultyLabels = {
 const WARMUP_PROBLEM_SLUG = "sum-two-numbers";
 
 export default async function ProblemsPage() {
+  const session = await auth();
+  const currentUserId = session?.user?.id;
+
   const problems = await prisma.problem.findMany({
     where: { published: true },
     orderBy: [{ difficulty: "asc" }, { title: "asc" }],
@@ -31,6 +35,12 @@ export default async function ProblemsPage() {
     distinct: ["problemId", "userId"],
     select: { problemId: true, userId: true },
   });
+  const solvedProblemIds = new Set(
+    currentUserId
+      ? acceptedSubmissions.filter((s) => s.userId === currentUserId).map((s) => s.problemId)
+      : [],
+  );
+
   const acceptedCounts = acceptedSubmissions.reduce<Record<string, number>>(
     (counts, submission) => {
       counts[submission.problemId] = (counts[submission.problemId] ?? 0) + 1;
@@ -101,11 +111,13 @@ export default async function ProblemsPage() {
           {sheetProblems.length > 0 ? (
             sheetProblems.map((problem) => (
               <a
-                className={
-                  problem.slug === WARMUP_PROBLEM_SLUG
-                    ? "problem-row pinned-problem"
-                    : "problem-row"
-                }
+                className={[
+                  "problem-row",
+                  problem.slug === WARMUP_PROBLEM_SLUG && "pinned-problem",
+                  solvedProblemIds.has(problem.id) && "solved",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 href={`/problems/${problem.slug}`}
                 key={problem.slug}
               >

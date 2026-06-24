@@ -748,6 +748,15 @@ img {
   align-items: center;
 }
 
+.problem-row.solved {
+  background: #f4fff7;
+  border-left: 3px solid var(--accent);
+}
+
+.problem-row.solved:hover {
+  background: #ecfff2;
+}
+
 .practice-leaderboard {
   margin-top: 28px;
   border: 1px solid var(--line);
