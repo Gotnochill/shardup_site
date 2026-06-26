@@ -13,7 +13,6 @@ describe("FeedbackWidget", () => {
     const issueUrl = buildFeedbackIssueUrl({
       details: "C++ result looked wrong",
       pageUrl: "https://shardup.vercel.app/problems/sum-two-numbers",
-      screenshotCaptured: true,
       timestamp: "2026-06-24T12:00:00.000Z",
     });
 
@@ -25,9 +24,6 @@ describe("FeedbackWidget", () => {
     expect(url.searchParams.get("body")).toContain("Timestamp: 2026-06-24T12:00:00.000Z");
     expect(url.searchParams.get("body")).toContain(
       "Page: https://shardup.vercel.app/problems/sum-two-numbers",
-    );
-    expect(url.searchParams.get("body")).toContain(
-      "Screenshot captured: yes, attach downloaded screenshot",
     );
     expect(url.searchParams.get("body")).toContain("C++ result looked wrong");
   });
