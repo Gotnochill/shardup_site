@@ -681,6 +681,10 @@ async function main() {
     });
   }
 
+  const contestWarmupReferences = readReferenceSolutions("contest-warmup-sum");
+  const contestWarmupPrimary = contestWarmupReferences.find(
+    (solution) => solution.language === "python",
+  );
   const contestProblem = await prisma.problem.upsert({
     where: { slug: "contest-warmup-sum" },
     update: {
@@ -688,6 +692,8 @@ async function main() {
       statement: "Read two integers and print their sum.",
       published: false,
       practiceOrder: 200000,
+      solutionCode: contestWarmupPrimary?.code,
+      solutionLanguage: contestWarmupPrimary?.language,
     },
     create: {
       slug: "contest-warmup-sum",
@@ -697,6 +703,8 @@ async function main() {
       difficulty: "EASY",
       published: false,
       practiceOrder: 200000,
+      solutionCode: contestWarmupPrimary?.code,
+      solutionLanguage: contestWarmupPrimary?.language,
     },
     select: { id: true },
   });
@@ -720,6 +728,18 @@ async function main() {
       },
     ],
   });
+
+  await prisma.problemReferenceSolution.deleteMany({
+    where: { problemId: contestProblem.id },
+  });
+  if (contestWarmupReferences.length > 0) {
+    await prisma.problemReferenceSolution.createMany({
+      data: contestWarmupReferences.map((solution) => ({
+        ...solution,
+        problemId: contestProblem.id,
+      })),
+    });
+  }
 
   const sampleContest = await prisma.contest.upsert({
     where: { slug: "shardup-contest-1" },
