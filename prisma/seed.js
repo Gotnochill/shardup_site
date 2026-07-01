@@ -665,6 +665,135 @@ async function main() {
     });
   }
 
+  const contestTierBadges = [
+    { name: "Contest Newbie", description: "Contest rating below 1200.", xp: 10 },
+    { name: "Contest Pupil", description: "Contest rating 1200-1399.", xp: 25 },
+    { name: "Contest Specialist", description: "Contest rating 1400-1599.", xp: 50 },
+    { name: "Contest Expert", description: "Contest rating 1600-1899.", xp: 100 },
+    { name: "Contest Candidate Master", description: "Contest rating 1900+.", xp: 200 },
+  ];
+
+  for (const badge of contestTierBadges) {
+    await prisma.badge.upsert({
+      where: { name: badge.name },
+      update: { description: badge.description, xp: badge.xp },
+      create: badge,
+    });
+  }
+
+  const contestProblem = await prisma.problem.upsert({
+    where: { slug: "contest-warmup-sum" },
+    update: {
+      title: "Contest Warmup Sum",
+      statement: "Read two integers and print their sum.",
+      published: false,
+      practiceOrder: 200000,
+    },
+    create: {
+      slug: "contest-warmup-sum",
+      title: "Contest Warmup Sum",
+      statement: "Read two integers and print their sum.",
+      constraints: "Use 32-bit integers.",
+      difficulty: "EASY",
+      published: false,
+      practiceOrder: 200000,
+    },
+    select: { id: true },
+  });
+
+  await prisma.testCase.deleteMany({ where: { problemId: contestProblem.id } });
+  await prisma.testCase.createMany({
+    data: [
+      {
+        problemId: contestProblem.id,
+        input: "2 3\n",
+        expectedOutput: "5\n",
+        isSample: true,
+        order: 0,
+      },
+      {
+        problemId: contestProblem.id,
+        input: "10 20\n",
+        expectedOutput: "30\n",
+        isSample: false,
+        order: 1,
+      },
+    ],
+  });
+
+  const sampleContest = await prisma.contest.upsert({
+    where: { slug: "shardup-contest-1" },
+    update: {
+      title: "ShardUp Contest #1",
+      description: "Sample draft contest for local development.",
+      startsAt: new Date("2026-07-15T10:00:00.000Z"),
+      endsAt: new Date("2026-07-15T12:00:00.000Z"),
+      status: "DRAFT",
+    },
+    create: {
+      slug: "shardup-contest-1",
+      title: "ShardUp Contest #1",
+      description: "Sample draft contest for local development.",
+      startsAt: new Date("2026-07-15T10:00:00.000Z"),
+      endsAt: new Date("2026-07-15T12:00:00.000Z"),
+      status: "DRAFT",
+    },
+    select: { id: true },
+  });
+
+  await prisma.contestProblem.deleteMany({ where: { contestId: sampleContest.id } });
+  await prisma.contestProblem.create({
+    data: {
+      contestId: sampleContest.id,
+      problemId: contestProblem.id,
+      label: "A",
+      order: 0,
+    },
+  });
+
+  const demoPracticeProblems = await prisma.problem.findMany({
+    where: { published: true },
+    orderBy: [{ practiceOrder: "asc" }, { title: "asc" }],
+    take: 2,
+    select: { id: true },
+  });
+
+  if (demoPracticeProblems.length >= 2) {
+    const demoContest = await prisma.contest.upsert({
+      where: { slug: "demo-contest" },
+      update: {
+        title: "Demo Contest",
+        description:
+          "A start-anytime contest with two problems from the Practice tab. Use it to get familiar with the contest interface. Your 60-minute timer starts when you click Start.",
+        startsAt: new Date("2026-01-01T00:00:00.000Z"),
+        endsAt: new Date("2099-12-31T23:59:59.000Z"),
+        durationMinutes: 60,
+        status: "PUBLISHED",
+      },
+      create: {
+        slug: "demo-contest",
+        title: "Demo Contest",
+        description:
+          "A start-anytime contest with two problems from the Practice tab. Use it to get familiar with the contest interface. Your 60-minute timer starts when you click Start.",
+        startsAt: new Date("2026-01-01T00:00:00.000Z"),
+        endsAt: new Date("2099-12-31T23:59:59.000Z"),
+        durationMinutes: 60,
+        status: "PUBLISHED",
+      },
+      select: { id: true },
+    });
+
+    await prisma.contestProblem.deleteMany({ where: { contestId: demoContest.id } });
+    await prisma.contestProblem.createMany({
+      data: demoPracticeProblems.map((problem, index) => ({
+        contestId: demoContest.id,
+        problemId: problem.id,
+        label: String.fromCharCode("A".charCodeAt(0) + index),
+        order: index,
+      })),
+    });
+  }
+
   // Seed a minimal Bookshelf smoke seed
   const category = await prisma.category.upsert({
     where: { slug: "system-design" },
